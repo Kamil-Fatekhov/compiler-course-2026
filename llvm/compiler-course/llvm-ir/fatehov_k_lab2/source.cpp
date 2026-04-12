@@ -31,7 +31,9 @@ struct DecomposeRemPass : llvm::PassInfoMixin<DecomposeRemPass> {
       switch (remInstr->getOpcode()) {
       case llvm::Instruction::FRem:
         div = builder.CreateFDiv(a, b, "fdiv_tmp");
-        mul = builder.CreateFMul(div, b, "fmul_tmp");
+        mul = builder.CreateIntrinsic(div->getType(), llvm::Intrinsic::trunc,
+                                      {div}, nullptr, "trunc_tmp");
+        mul = builder.CreateFMul(mul, b, "fmul_tmp");
         sub = builder.CreateFSub(a, mul, "frem_decomposed");
         break;
 
